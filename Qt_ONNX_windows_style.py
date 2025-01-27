@@ -57,7 +57,7 @@ class MyWindow(QWidget):
 
         # 设置全局热键
         # self.global_hotkey = keyboard.Key.scroll_lock
-        self.global_hotkey = keyboard.Key.f9
+        self.global_hotkey = keyboard.Key.keyboard.Key.grave
         # Connect the signal to a slot
         self.transcription_ready.connect(self.update_transcription)
 
@@ -172,14 +172,14 @@ class MyWindow(QWidget):
     def setup_hotkey(self):
         def on_press(key):
             try:
-                if key == self.global_hotkey and not self.button.isPressed:  # Use the global_hotkey variable here
-                    self.button.simulatePress()  # 按下Scroll Lock时模拟鼠标按下事件
+                if key == self.global_hotkey and not self.button.isPressed:
+                    self.button.simulatePress()
             except AttributeError:
                 pass
 
         def on_release(key):
-            if key == self.global_hotkey and self.button.isPressed:  # Use the global_hotkey variable here
-                self.button.simulateRelease()  # 释放Scroll Lock时模拟鼠标释放事件
+            if key == self.global_hotkey and self.button.isPressed:
+                self.button.simulateRelease()
 
         # Collect events until released
         self.listener = keyboard.Listener(
@@ -187,20 +187,17 @@ class MyWindow(QWidget):
             on_release=on_release)
         self.listener.start()
 
-        # 设置录音的参数
-        self.fs = 44100  # Sample rate
-        self.channels = 2  # Number of channels
+        # 修改录音参数
+        self.fs = 16000  # 采样率改为16kHz
+        self.channels = 1  # 通道数改为1（单声道）
 
         # 创建一个用于存储录音数据的列表
         self.myrecording = []
 
         # 创建一个录音流
         self.stream = sd.InputStream(samplerate=self.fs, channels=self.channels, callback=self.audio_callback)
-        # 创建一个用于存储录音数据的列表
         self.myrecording = []
-        # 添加一个状态变量，表示是否正在录音
         self.isRecording = False
-        # 开始录音
         self.stream.start()
         print("Recording started...")
 
