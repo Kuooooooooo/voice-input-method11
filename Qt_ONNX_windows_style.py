@@ -104,7 +104,8 @@ class MyWindow(QWidget):
         self.recorder = QProcess()
 
         # 初始化模型
-        model_dir = "./speech_paraformer-large_asr_nat-zh-cn-16k-common-vocab8404-pytorch"
+        # model_dir = "./speech_paraformer-large_asr_nat-zh-cn-16k-common-vocab8404-pytorch"
+        model_dir = r"C:\Users\andIre222394ooo\.cache\modelscope\hub\iic\speech_paraformer-large_asr_nat-zh-cn-16k-common-vocab8404-pytorch"
         self.model = Paraformer(model_dir, batch_size=1, quantize=True)
 
         # 预热模型，避免第一次推理时的延迟
