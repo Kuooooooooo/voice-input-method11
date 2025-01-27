@@ -58,7 +58,8 @@ class MyWindow(QWidget):
 
         # 设置全局热键
         # self.global_hotkey = keyboard.Key.scroll_lock
-        self.global_hotkey = keyboard.Key.shift_r  # 波浪号键（反引号键 ` ）
+        # self.global_hotkey = keyboard.Key.shift_r  # 波浪号键（反引号键 ` ）
+        self.global_hotkey = keyboard.Key.caps_lock  # 波浪号键（反引号键 ` ）
         # self.global_hotkey = keyboard.KeyCode.from_char('')   # 波浪号键（反引号键 ` ）
         # Connect the signal to a slot
         self.transcription_ready.connect(self.update_transcription)
@@ -195,8 +196,11 @@ class MyWindow(QWidget):
         self.listener.start()
 
         # 修改录音参数
-        self.fs = 16000  # 采样率改为16kHz
-        self.channels = 1  # 通道数改为1（单声道）
+        # self.fs = 16000  # 采样率改为16kHz
+        # self.channels = 1  # 通道数改为1（单声道）
+        self.fs = 44100  # Sample rate
+        self.channels = 1  # Number of channels
+
 
         # 创建一个用于存储录音数据的列表
         self.myrecording = []
