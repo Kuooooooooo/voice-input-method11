@@ -56,8 +56,8 @@ class MyWindow(QWidget):
         self.setWindowOpacity(0.8)
 
         # 设置全局热键
-        self.global_hotkey = keyboard.Key.scroll_lock
-
+        # self.global_hotkey = keyboard.Key.scroll_lock
+        self.global_hotkey = keyboard.Key.f9
         # Connect the signal to a slot
         self.transcription_ready.connect(self.update_transcription)
 
