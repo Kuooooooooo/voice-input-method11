@@ -58,8 +58,8 @@ class MyWindow(QWidget):
 
         # 设置全局热键
         # self.global_hotkey = keyboard.Key.scroll_lock
-        # self.global_hotkey = keyboard.Key.shift_r  # 波浪号键（反引号键 ` ）
-        self.global_hotkey = keyboard.Key.f9  # 波浪号键（反引号键 ` ）
+        self.global_hotkey = keyboard.Key.shift_r  # 波浪号键（反引号键 ` ）
+        # self.global_hotkey = keyboard.KeyCode.from_char('')   # 波浪号键（反引号键 ` ）
         # Connect the signal to a slot
         self.transcription_ready.connect(self.update_transcription)
 
