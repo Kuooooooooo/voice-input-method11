@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QTextEdit
+from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QTextEdit, QCheckBox
 from PyQt5.QtGui import QMouseEvent, QIcon
 from PyQt5.QtCore import QProcess, Qt, QEvent, QTimer, pyqtSignal
 from funasr_onnx import Paraformer
@@ -57,7 +57,8 @@ class MyWindow(QWidget):
 
         # 设置全局热键
         # self.global_hotkey = keyboard.Key.scroll_lock
-        self.global_hotkey = keyboard.Key.keyboard.Key.grave
+        # self.global_hotkey = keyboard.Key.shift_r  # 波浪号键（反引号键 ` ）
+        self.global_hotkey = keyboard.Key.f9  # 波浪号键（反引号键 ` ）
         # Connect the signal to a slot
         self.transcription_ready.connect(self.update_transcription)
 
@@ -142,6 +143,11 @@ class MyWindow(QWidget):
         # 将读取的内容转换为一个集合
         self.traditional_chars = set(library_text)
 
+        # 添加保存录音文件的复选框
+        self.save_audio_checkbox = QCheckBox("保存录音", self)
+        self.save_audio_checkbox.setChecked(False)  # 默认不保存
+        self.save_audio_checkbox.move(10, 10)  # 设置位置
+
     def convertText(self):
         # 创建一个新的线程来处理转换操作
         thread = threading.Thread(target=self.convertTextThread)
@@ -208,11 +214,22 @@ class MyWindow(QWidget):
 
     def stopRecording(self):
         self.isRecording = False  # 录音结束，改变状态变量的值
-        # 将录音数据写入文件
+        # 将录音数据转换为numpy数组
         myrecording_np = np.array(self.myrecording)
-        sf.write('audio.wav', myrecording_np, self.fs)
+        
+        # 只有当复选框被选中时才保存文件
+        if self.save_audio_checkbox.isChecked():
+            sf.write('audio.wav', myrecording_np, self.fs)
+        
+        # 创建临时的内存文件对象进行转录
+        with sf.SoundFile('temp.wav', mode='w', samplerate=self.fs, channels=self.channels) as f:
+            f.write(myrecording_np)
+        
         # 开始转录音频
         self.transcribe_audio()
+        
+        # 清理内存
+        self.myrecording = []
 
     def audio_callback(self, indata, frames, time, status):
         # 如果正在录音，就将录音数据添加到列表中
