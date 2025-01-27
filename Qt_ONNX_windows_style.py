@@ -9,6 +9,7 @@ from opencc import OpenCC
 import sounddevice as sd
 import numpy as np
 import soundfile as sf
+import os
 
 class MyButton(QPushButton):
     def __init__(self, *args, **kwargs):
@@ -217,16 +218,16 @@ class MyWindow(QWidget):
         # 将录音数据转换为numpy数组
         myrecording_np = np.array(self.myrecording)
         
-        # 只有当复选框被选中时才保存文件
+        # 创建临时文件用于转录
+        temp_wav = 'temp.wav'
+        sf.write(temp_wav, myrecording_np, self.fs)
+        
+        # 如果用户选择保存录音，则另存一份
         if self.save_audio_checkbox.isChecked():
             sf.write('audio.wav', myrecording_np, self.fs)
         
-        # 创建临时的内存文件对象进行转录
-        with sf.SoundFile('temp.wav', mode='w', samplerate=self.fs, channels=self.channels) as f:
-            f.write(myrecording_np)
-        
         # 开始转录音频
-        self.transcribe_audio()
+        self.transcribe_audio(temp_wav)
         
         # 清理内存
         self.myrecording = []
@@ -244,19 +245,23 @@ class MyWindow(QWidget):
         if self.button.isPressed and not self.isRecording:  # 在模拟鼠标释放事件时，检查是否正在录音
             self.button.simulateRelease()
 
-    def transcribe_audio(self):
+    def transcribe_audio(self, wav_file):
         # 创建一个新的线程来执行转录的任务
-        thread = threading.Thread(target=self.transcribe_audio_thread)
+        thread = threading.Thread(target=self.transcribe_audio_thread, args=(wav_file,))
         thread.start()
 
-    def transcribe_audio_thread(self):
-        wav_path = ['./audio.wav']
-        result = self.model(wav_path)
-        print("Transcription: ", result)
-        if result and 'preds' in result[0]:
-            transcription = result[0]['preds'][0]
-            # Emit the signal with the transcription
-            self.transcription_ready.emit(transcription)
+    def transcribe_audio_thread(self, wav_file):
+        try:
+            result = self.model([wav_file])
+            print("Transcription: ", result)
+            if result and 'preds' in result[0]:
+                transcription = result[0]['preds'][0]
+                # Emit the signal with the transcription
+                self.transcription_ready.emit(transcription)
+        finally:
+            # 转录完成后删除临时文件
+            if os.path.exists(wav_file) and wav_file == 'temp.wav':
+                os.remove(wav_file)
 
     def update_transcription(self, transcription):
         self.textEdit.setText(transcription)
